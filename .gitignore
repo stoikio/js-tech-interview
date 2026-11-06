@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.env
+*.tsbuildinfo
+apps/api/src/generated
+.DS_Store
+.claude/launch.json
+apps/client/public/excalidraw-assets

@@ -1,0 +1,28 @@
+{
+  "name": "stoik-lite",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "postinstall": "node scripts/setup-env.mjs && pnpm --filter @stoik-lite/api db:generate",
+    "dev": "node scripts/setup-env.mjs && docker compose up -d --wait && pnpm --filter @stoik-lite/api db:prepare && pnpm -r --parallel dev",
+    "infra": "node scripts/setup-env.mjs && docker compose up -d --wait",
+    "build": "pnpm -r build",
+    "lint": "oxlint --config oxlint.config.mts",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm run infra && pnpm --filter @stoik-lite/api test:e2e",
+    "db:reset": "pnpm run infra && pnpm --filter @stoik-lite/api db:reset",
+    "lint:fix": "oxlint --config oxlint.config.mts --fix"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
+    "typescript": "~6.0.3"
+  },
+  "type": "module"
+}

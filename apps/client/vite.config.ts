@@ -1,0 +1,16 @@
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from 'vite';
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  return {
+    plugins: [react(), tailwindcss()],
+    server: {
+      port: 3000,
+      strictPort: true,
+      // Same origin for the browser: nothing to configure for CORS.
+      proxy: { '/api': env.API_URL ?? 'http://localhost:3001' },
+    },
+  };
+});

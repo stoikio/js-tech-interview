@@ -1,0 +1,76 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum QuoteStatus {
+  draft
+  signed
+}
+
+enum CoverageOption {
+  ransomware_extortion
+  social_engineering_fraud
+  business_interruption
+  regulatory_fines
+}
+
+// ─── Domain ─────────────────────────────────────────────────────────────────
+
+/// The client company, insured or prospect.
+model Company {
+  id                 String     @id @default(uuid())
+  name               String
+  annualRevenueCents BigInt
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  quotes             Quote[]
+  contracts          Contract[]
+
+  @@map("company")
+}
+
+model Quote {
+  id                 String           @id @default(uuid())
+  companyId          String
+  company            Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status             QuoteStatus      @default(draft)
+  coverageLimitCents Int
+  deductibleCents    Int
+  options            CoverageOption[]
+  premiumCents       Int
+  /// Output of the pricing module: inputs, every factor and the premium.
+  pricingBreakdown   Json
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  contract           Contract?
+
+  @@index([companyId])
+  @@map("quote")
+}
+
+/// Terms are copied from the quote when it is signed.
+model Contract {
+  id                 String           @id @default(uuid())
+  quoteId            String           @unique
+  quote              Quote            @relation(fields: [quoteId], references: [id])
+  companyId          String
+  company            Company          @relation(fields: [companyId], references: [id])
+  startDate          DateTime         @db.Date
+  endDate            DateTime         @db.Date
+  premiumCents       Int
+  coverageLimitCents Int
+  deductibleCents    Int
+  options            CoverageOption[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([companyId])
+  @@map("contract")
+}
